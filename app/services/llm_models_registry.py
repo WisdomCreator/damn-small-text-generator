@@ -36,4 +36,4 @@ class LLMModelsRegistry:
 
 
 llm_registry = LLMModelsRegistry()
-print(llm_registry.list_all_models())
+
