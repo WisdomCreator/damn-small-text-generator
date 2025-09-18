@@ -4,7 +4,7 @@ from functools import lru_cache
 
 class Settings(BaseSettings):
     API_V1_STR: str = "/v1"
-    PROJECT_NAME: str = "Small Text Generator"
+    PROJECT_NAME: str = "damn-small-text-generator"
     REDIS_URL: str
     DATABASE_URL: str
 

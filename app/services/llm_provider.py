@@ -1,4 +1,5 @@
 import torch
+import gc
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 from abc import ABC, abstractmethod
 from typing import Optional
@@ -18,6 +19,8 @@ class LLMProvider(ABC):
     def generate(self, prompt: str) -> str: ...
     @abstractmethod
     def load_model(self): ...
+    @abstractmethod
+    def unload_model(self) -> bool: ...
 
 
 class TorchProvider(LLMProvider):
@@ -65,4 +68,33 @@ class TorchProvider(LLMProvider):
         return self.__nlp
 
     def unload_model(self):
-        pass
+        if self.__nlp is None:
+            return False
+        
+        pipe = self.__nlp
+        self.__nlp = None
+
+        try:
+            model = getattr(pipe, "model")
+            tokenizer = getattr(pipe, "tokenizer")
+            # Перед удалением модели изменяем режим работы на cpu, чтобы освободить видеопамять
+            if model is not None:
+                try:
+                    model.cpu()
+                except Exception:
+                    pass
+                del model
+            
+            if tokenizer is not None:
+                del tokenizer
+            del pipe
+        finally:
+            gc.collect()
+
+            if self.__device == "cuda" and torch.cuda.is_available():
+                torch.cuda.empty_cache()
+            elif self.__device == "mps" and hasattr(torch, "mps") and hasattr(torch.mps, "empty_cache"):
+                torch.mps.empty_cache()
+        return True
+
+
