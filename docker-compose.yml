@@ -1,6 +1,8 @@
 services:
   api:
     build: .
+    env_file:
+      - .env
     ports:
       - "${API_PORT_PUBLIC:-8000}:8000"
     depends_on:
@@ -15,6 +17,8 @@ services:
 
   worker:
     build: .
+    env_file:
+      - .env
     command: uv run celery -A app.workers.celery_app worker -Q generations -l INFO
     depends_on: [ redis, db ]
     volumes:
