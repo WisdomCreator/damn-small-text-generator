@@ -1,0 +1,9 @@
+__pychache__/
+.mypy_cache/
+.ruff_cache/
+.venv/
+.vscode/
+launch.json
+settings.json
+bruno/
+models/

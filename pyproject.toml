@@ -1,0 +1,20 @@
+[project]
+name = "damn-small-text-generator"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "alembic>=1.16.5",
+    "celery[redis]>=5.5.3",
+    "fastapi>=0.116.1",
+    "mypy>=1.17.1",
+    "psycopg2>=2.9.10",
+    "pydantic-settings>=2.10.1",
+    "ruff>=0.12.11",
+    "sqlalchemy>=2.0.43",
+    "torch>=2.8.0",
+    "torchvision>=0.23.0",
+    "transformers>=4.55.0",
+    "uvicorn[standard]>=0.35.0",
+]
