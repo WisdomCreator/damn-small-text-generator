@@ -96,5 +96,3 @@ class TorchProvider(LLMProvider):
             elif self.__device == "mps" and hasattr(torch, "mps") and hasattr(torch.mps, "empty_cache"):
                 torch.mps.empty_cache()
         return True
-
-
