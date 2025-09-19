@@ -11,7 +11,7 @@ def list_models():
     return {"models": llm_registry.list_all_models()}
 
 
-@router.get("/loaded")
+@router.get("/loaded", response_model=LLMLoadedModelListResponse)
 def list_loaded_models():
     return {"loaded_models": llm_registry.list_loaded_models()}
 
