@@ -33,7 +33,21 @@ class LLMModelsRegistry:
         count = len(self.__loaded_models)
         self.__loaded_models = {}
         return count
-
-
-llm_registry = LLMModelsRegistry()
+    
+    def get_model_by_name(self, model_name: str) -> LLMProvider:
+        return self.__loaded_models.get(model_name)
+    
+    def get_model_status(self, model_name: str) -> str:
+        if self.is_model_exist(model_name):
+            return self.is_model_loaded(model_name)
+        raise ValueError(f"Model {model_name} not found")
+    
+    def is_model_loaded(self, model_name: str) -> bool:
+        if self.is_model_exist(model_name):
+            return model_name in self.__loaded_models
+        raise ValueError(f"Model {model_name} not found")
+    
+    def is_model_exist(self, model_name: str) -> bool:
+        return model_name in os.listdir(MODELS_DIR)
+    
 
