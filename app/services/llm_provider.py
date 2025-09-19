@@ -25,7 +25,7 @@ class LLMProvider(ABC):
 
 class TorchProvider(LLMProvider):
     def __init__(self, model_name: str, device: Optional[str] = None):
-        self.__model_name = model_name
+        super().__init__(model_name)
         self.__device = device
 
         if device:
@@ -43,18 +43,18 @@ class TorchProvider(LLMProvider):
     def generate(self, prompt: str) -> str:
         if self.__nlp is None:
             raise RuntimeError("Model is not loaded. Call load_model() first.")
-        return str(self.__nlp(prompt))
+        return self.__nlp(prompt)[0]["generated_text"]
 
     def load_model(self):
         dtype = torch.float16 if self.__device in ("cuda", "mps") else torch.float32
 
         tokenizer = AutoTokenizer.from_pretrained(
-            MODELS_DIR + self.__model_name,
+            MODELS_DIR + self.model_name,
             torch_dtype=dtype,
         )
 
         model = AutoModelForCausalLM.from_pretrained(
-            MODELS_DIR + self.__model_name,
+            MODELS_DIR + self.model_name,
             torch_dtype=dtype,
             local_files_only=True,
         )

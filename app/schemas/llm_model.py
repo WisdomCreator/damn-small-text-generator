@@ -11,4 +11,9 @@ class LLMModelListResponse(BaseModel):
 class LLMLoadedModelListResponse(BaseModel):
     loaded_models: List[str]
 
+class LoadLLMModelRequest(BaseModel):
+    model_name: str
+
+class UnloadLLMModelRequest(BaseModel):
+    model_name: str
     

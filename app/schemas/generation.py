@@ -1,16 +1,6 @@
 from pydantic import BaseModel
-from app.enums.generation_status import GenerationStatus
-from typing import Any
 
-
-class Generation(BaseModel):
-    gen_id: int
+class GenerationCreateRequest(BaseModel):
+    prompt: str
     model_name: str
-    status: GenerationStatus
-    params: dict[str, Any]
-    message: str
-
-
-class TextGeneration(Generation):
-    template_id: int
-    veriables: dict[str, Any]
+    #params: dict[str, Any] = {}

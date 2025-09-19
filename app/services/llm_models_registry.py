@@ -1,11 +1,11 @@
 import os
 from typing import Dict, List
-from app.services.llm_provider import LLMProvider, MODELS_DIR
+from app.services.llm_provider import TorchProvider, MODELS_DIR
 
 
 class LLMModelsRegistry:
     def __init__(self) -> None:
-        self.__loaded_models: Dict[str, LLMProvider] = {}
+        self.__loaded_models: Dict[str, TorchProvider] = {}
 
     def list_all_models(self) -> List[str]:
         return os.listdir(MODELS_DIR)
@@ -13,12 +13,13 @@ class LLMModelsRegistry:
     def list_loaded_models(self):
         return list(self.__loaded_models.keys())
 
-    def get_loaded_model(self, model_name: str) -> LLMProvider:
+    def get_loaded_model(self, model_name: str) -> TorchProvider:
         return self.__loaded_models[model_name]
 
-    def load_model_by_name(self, llm_provider: LLMProvider):  # изменить на имя
+    def load_model_by_name(self, model_name: str):
+        llm_provider = TorchProvider(model_name)
         llm_provider.load_model()
-        self.__loaded_models[llm_provider.model_name] = llm_provider
+        self.__loaded_models[model_name] = llm_provider
         return llm_provider
 
     def unload_model_by_name(self, model_name: str) -> bool:
@@ -34,7 +35,7 @@ class LLMModelsRegistry:
         self.__loaded_models = {}
         return count
     
-    def get_model_by_name(self, model_name: str) -> LLMProvider:
+    def get_model_by_name(self, model_name: str) -> TorchProvider:
         return self.__loaded_models.get(model_name)
     
     def get_model_status(self, model_name: str) -> str:
