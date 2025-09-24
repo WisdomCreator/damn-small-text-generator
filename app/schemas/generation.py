@@ -1,6 +1,15 @@
 from pydantic import BaseModel
 
-class GenerationCreateRequest(BaseModel):
+class CreateTextGenerationRequest(BaseModel):
     prompt: str
     model_name: str
-    #params: dict[str, Any] = {}
+
+class CreateTextGenerationResponse(BaseModel):
+    generation_id: int
+
+class GetTextGenerationResponse(BaseModel):
+    id: int
+    status: str
+    prompt: str
+    text: str | None = None
+    message: str | None = None
