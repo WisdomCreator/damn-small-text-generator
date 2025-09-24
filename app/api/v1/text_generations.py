@@ -1,32 +1,26 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from app.schemas.generation import TextGeneration
+from app.schemas.generation import GenerationCreateRequest
 from app.db.session import get_db
 from app.db.models import Generation
-from app.workers.tasks import process_generation
+from app.workers.tasks import generation_task
 from app.enums.generation_status import GenerationStatus
 
-router = APIRouter(prefix="/text_generations", tags=["text_generations"])
+router = APIRouter(prefix="/text-generations", tags=["text_generations"])
 
 
-@router.post("/create")
-def create_generation_task(db: Session = Depends(get_db)):
-    generation = Generation(status=GenerationStatus.QUEUED)
+@router.post("/")
+def create_generation_task(request: GenerationCreateRequest, db: Session = Depends(get_db)):
+    generation = Generation(status=GenerationStatus.QUEUED, prompt=request.prompt, model_name=request.model_name)
     db.add(generation)
     db.commit()
-    process_generation.delay(generation.id)
-    return "true"
+    generation_task.delay(generation.id, request.prompt, request.model_name)
+    return generation.id
 
 
 @router.get(
     "/{gen_id}",
-    response_model=TextGeneration,
-    summary="Получить информацию о генерации по id",
+    summary="Получить статус генерации по id",
 )
-def get_generation_status(gen_id: int):
-    pass
-
-
-@router.get("/{gen_id}/result")
-def get_generation_result(gen_id: int):
+def get_text_generation(gen_id: int):
     pass

@@ -19,7 +19,7 @@ services:
     build: .
     env_file:
       - .env
-    command: uv run celery -A app.workers.celery_app worker -Q generations -l INFO
+    command: uv run celery -A app.workers.celery_app worker -Q generations -l INFO --concurrency=1
     depends_on: [ redis, db ]
     volumes:
       - ./models:/app/models:ro
