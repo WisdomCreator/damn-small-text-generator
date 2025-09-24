@@ -1,7 +1,7 @@
 from fastapi import APIRouter
-from app.api.v1 import text_generations
-from app.api.v1 import models
+from app.api.v1 import text_generations, models, loaded_models
 
 api_router = APIRouter()
 api_router.include_router(text_generations.router)
 api_router.include_router(models.router)
+api_router.include_router(loaded_models.router)
