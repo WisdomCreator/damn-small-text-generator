@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import Optional, List
 
 class LLMModelStatusResponse(BaseModel):
     model_name: str
@@ -11,9 +11,15 @@ class LLMModelListResponse(BaseModel):
 class LLMLoadedModelListResponse(BaseModel):
     loaded_models: List[str]
 
+class ModelsQuery(BaseModel):
+    loaded: Optional[bool] = None
+
 class LoadLLMModelRequest(BaseModel):
     model_name: str
 
 class UnloadLLMModelRequest(BaseModel):
     model_name: str
+
+class CreateTaskResponse(BaseModel):
+    task_id: str
     

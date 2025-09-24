@@ -1,10 +1,12 @@
 import os
+import redis
 from typing import Dict, List
 from app.services.llm_provider import TorchProvider, MODELS_DIR
 
 
 class LLMModelsRegistry:
-    def __init__(self) -> None:
+    def __init__(self, redis_url: str) -> None:
+        self.__redis = redis.Redis.from_url(redis_url, decode_responses=True)
         self.__loaded_models: Dict[str, TorchProvider] = {}
 
     def list_all_models(self) -> List[str]:
@@ -37,11 +39,6 @@ class LLMModelsRegistry:
     
     def get_model_by_name(self, model_name: str) -> TorchProvider:
         return self.__loaded_models.get(model_name)
-    
-    def get_model_status(self, model_name: str) -> str:
-        if self.is_model_exist(model_name):
-            return self.is_model_loaded(model_name)
-        raise ValueError(f"Model {model_name} not found")
     
     def is_model_loaded(self, model_name: str) -> bool:
         if self.is_model_exist(model_name):

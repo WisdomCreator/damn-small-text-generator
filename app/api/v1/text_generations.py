@@ -19,8 +19,8 @@ def create_generation_task(request: GenerationCreateRequest, db: Session = Depen
 
 
 @router.get(
-    "/{gen_id}",
-    summary="Получить информацию о генерации по id",
+    "/{gen_id}/status",
+    summary="Получить статус генерации по id",
 )
 def get_generation_status(gen_id: int):
     pass
