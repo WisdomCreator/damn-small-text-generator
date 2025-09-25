@@ -1,25 +1,33 @@
-from fastapi import APIRouter, HTTPException, Depends
+import asyncio
+from fastapi import APIRouter, HTTPException, Depends, status
 from app.workers.tasks import list_models_task, get_model_status_task
 from app.schemas.llm_model import ModelsQuery, LLMModelStatusResponse, LLMModelListResponse
+from celery.exceptions import TimeoutError
+
 
 router = APIRouter(prefix="/models", tags=["models"])
 
 
 @router.get("/", response_model=LLMModelListResponse)
-def list_models(params: ModelsQuery = Depends()):
+async def list_models(params: ModelsQuery = Depends()):
     task = list_models_task.delay(params.loaded)
-    result = task.get(timeout=5)
-    return {"models": result["models"]}
+    try:
+        result = await asyncio.to_thread(task.get, timeout=5)
+        return {"models": result["models"]}
+    except TimeoutError:
+        raise HTTPException(status_code=status.HTTP_504_GATEWAY_TIMEOUT, detail="Request timed out")
 
 
 @router.get("/{model_name}", response_model=LLMModelStatusResponse)
-def get_model_status(model_name: str):
+async def get_model_status(model_name: str):
+    task = get_model_status_task.delay(model_name)
     try:
-        task = get_model_status_task.delay(model_name)
-        result = task.get(timeout=5)
+        result = await asyncio.to_thread(task.get, timeout=5)
         return {"model_name": result["model_name"], "loaded": result["loaded"]}
-    except Exception as e:
-        raise HTTPException(status_code=404, detail=str(e))
+    except TimeoutError:
+        raise HTTPException(status_code=status.HTTP_504_GATEWAY_TIMEOUT, detail="Request timed out")
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=f"Model {model_name} not found")
 
 
 
