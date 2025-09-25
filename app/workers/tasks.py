@@ -1,5 +1,5 @@
 from app.workers.celery_app import celery
-from app.db.session import SessionLocal
+from app.db.session import SyncSessionLocal
 from app.db.models import Generation
 from app.config import get_settings
 from app.enums.generation_status import GenerationStatus
@@ -10,7 +10,7 @@ llm_registry = LLMModelsRegistry(settings.REDIS_URL + "/2")
 
 @celery.task(name="app.workers.tasks.process_generation", bind=True)
 def generation_task(self, generation_id: int, prompt: str, model_name: str):
-    db = SessionLocal()
+    db = SyncSessionLocal()
     try:
         generation = db.get(Generation, generation_id)
         if not generation:
