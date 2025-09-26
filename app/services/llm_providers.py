@@ -36,14 +36,14 @@ class TorchProvider(LLMProvider):
             self.__device = "mps"
         else:
             self.__device = "cpu"
-        print(self.__device)
 
         self.__nlp = None
 
-    def generate(self, prompt: str) -> str:
+    def generate(self, prompt: str, **params) -> str:
         if self.__nlp is None:
             raise RuntimeError("Model is not loaded. Call load_model() first.")
-        return self.__nlp(prompt)[0]["generated_text"]
+
+        return self.__nlp(prompt, **params)[0]["generated_text"]
 
     def load_model(self):
         dtype = torch.float16 if self.__device in ("cuda", "mps") else torch.float32
@@ -70,7 +70,7 @@ class TorchProvider(LLMProvider):
     def unload_model(self):
         if self.__nlp is None:
             return False
-        
+
         pipe = self.__nlp
         self.__nlp = None
 
@@ -84,7 +84,7 @@ class TorchProvider(LLMProvider):
                 except Exception:
                     pass
                 del model
-            
+
             if tokenizer is not None:
                 del tokenizer
             del pipe
@@ -93,6 +93,10 @@ class TorchProvider(LLMProvider):
 
             if self.__device == "cuda" and torch.cuda.is_available():
                 torch.cuda.empty_cache()
-            elif self.__device == "mps" and hasattr(torch, "mps") and hasattr(torch.mps, "empty_cache"):
+            elif (
+                self.__device == "mps"
+                and hasattr(torch, "mps")
+                and hasattr(torch.mps, "empty_cache")
+            ):
                 torch.mps.empty_cache()
         return True

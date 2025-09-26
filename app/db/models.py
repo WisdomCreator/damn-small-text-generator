@@ -1,5 +1,6 @@
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy import Integer, String
+from sqlalchemy import Index, Integer, String, text
+from sqlalchemy.dialects.postgresql import JSONB
 from typing import Optional
 from app.enums.generation_status import GenerationStatus
 
@@ -14,5 +15,13 @@ class Generation(Base):
     status: Mapped[GenerationStatus] = mapped_column(String)
     prompt: Mapped[str] = mapped_column(String)
     model_name: Mapped[str] = mapped_column(String)
-    text: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    generated_text: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     message: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    params: Mapped[dict] = mapped_column(
+        JSONB,
+        server_default=text("'{}'::jsonb"),
+    )
+
+    __table_args__ = (
+        Index("ix_generations_params_gin", text("params"), postgresql_using="gin"),
+    )

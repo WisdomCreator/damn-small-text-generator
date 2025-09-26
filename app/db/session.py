@@ -18,8 +18,12 @@ async_engine = create_async_engine(
     pool_pre_ping=True,
 )
 
-SyncSessionLocal = sessionmaker(bind=sync_engine, autoflush=False, expire_on_commit=False)
-AsyncSessionLocal = async_sessionmaker(bind=async_engine, class_=AsyncSession, autoflush=False, expire_on_commit=False)
+SyncSessionLocal = sessionmaker(
+    bind=sync_engine, autoflush=False, expire_on_commit=False
+)
+AsyncSessionLocal = async_sessionmaker(
+    bind=async_engine, class_=AsyncSession, autoflush=False, expire_on_commit=False
+)
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
