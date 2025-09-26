@@ -7,6 +7,7 @@ from app.db.session import async_engine
 
 settings = get_settings()
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup code

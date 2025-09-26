@@ -8,8 +8,9 @@ from app.services.llm_models_registry import LLMModelsRegistry
 settings = get_settings()
 llm_registry = LLMModelsRegistry(settings.REDIS_URL + "/2")
 
+
 @celery.task(name="app.workers.tasks.process_generation", bind=True)
-def generation_task(self, generation_id: int, prompt: str, model_name: str):
+def generation_task(self, generation_id: int, prompt: str, model_name: str, **params):
     db = SyncSessionLocal()
     try:
         generation = db.get(Generation, generation_id)
@@ -20,7 +21,7 @@ def generation_task(self, generation_id: int, prompt: str, model_name: str):
         db.refresh(generation)
         if llm_registry.is_model_loaded(model_name):
             llm_provider = llm_registry.get_model_by_name(model_name)
-            generation.text = str(llm_provider.generate(prompt))
+            generation.generated_text = str(llm_provider.generate(prompt, **params))
             generation.status = GenerationStatus.SUCCEEDED
         else:
             generation.status = GenerationStatus.FAILED
@@ -42,13 +43,19 @@ def generation_task(self, generation_id: int, prompt: str, model_name: str):
 
 @celery.task(name="app.workers.tasks.list_models", bind=True)
 def list_models_task(self, loaded: bool = False):
-    models = llm_registry.list_loaded_models() if loaded else llm_registry.list_all_models()
+    models = (
+        llm_registry.list_loaded_models() if loaded else llm_registry.list_all_models()
+    )
     return {"status": "succeeded", "models": models}
 
 
 @celery.task(name="app.workers.tasks.get_model_status", bind=True)
 def get_model_status_task(self, model_name: str):
-    return {"status": "succeeded", "model_name": model_name, "loaded": llm_registry.is_model_loaded(model_name)}
+    return {
+        "status": "succeeded",
+        "model_name": model_name,
+        "loaded": llm_registry.is_model_loaded(model_name),
+    }
 
 
 @celery.task(name="app.workers.tasks.load_model", bind=True)
@@ -68,7 +75,10 @@ def load_model_task(self, model_name: str):
 
 @celery.task(name="app.workers.tasks.unload_model", bind=True)
 def unload_model_task(self, model_name: str):
-    return {"status": "succeeded", "unloaded": llm_registry.unload_model_by_name(model_name)}
+    return {
+        "status": "succeeded",
+        "unloaded": llm_registry.unload_model_by_name(model_name),
+    }
 
 
 @celery.task(name="app.workers.tasks.unload_all_models", bind=True)

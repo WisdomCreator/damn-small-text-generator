@@ -3,7 +3,7 @@ from app.config import get_settings
 
 settings = get_settings()
 celery = Celery(
-    "simple_text_generation_tool",
+    "damn-small-text-generator",
     broker=settings.REDIS_URL + "/0",
     backend=settings.REDIS_URL + "/1",
 )

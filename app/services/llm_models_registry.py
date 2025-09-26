@@ -1,7 +1,7 @@
 import os
 import redis
 from typing import Dict, List
-from app.services.llm_provider import TorchProvider, MODELS_DIR
+from app.services.llm_providers import TorchProvider, MODELS_DIR
 
 
 class LLMModelsRegistry:
@@ -36,16 +36,14 @@ class LLMModelsRegistry:
         count = len(self.__loaded_models)
         self.__loaded_models = {}
         return count
-    
+
     def get_model_by_name(self, model_name: str) -> TorchProvider:
-        return self.__loaded_models.get(model_name)
-    
+        return self.__loaded_models[model_name]
+
     def is_model_loaded(self, model_name: str) -> bool:
         if self.is_model_exist(model_name):
             return model_name in self.__loaded_models
         raise ValueError(f"Model {model_name} not found")
-    
+
     def is_model_exist(self, model_name: str) -> bool:
         return model_name in os.listdir(MODELS_DIR)
-    
-
