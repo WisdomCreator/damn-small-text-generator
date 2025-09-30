@@ -4,9 +4,10 @@ from app.db.models import Generation
 from app.config import get_settings
 from app.enums.generation_status import GenerationStatus
 from app.services.llm_models_registry import LLMModelsRegistry
+from app.services.llm_providers import LLMProviderType
 
 settings = get_settings()
-llm_registry = LLMModelsRegistry(settings.REDIS_URL + "/2")
+llm_registry = LLMModelsRegistry()
 
 
 @celery.task(name="app.workers.tasks.process_generation", bind=True)
@@ -20,7 +21,7 @@ def generation_task(self, generation_id: int, prompt: str, model_name: str, **pa
         db.commit()
         db.refresh(generation)
         if llm_registry.is_model_loaded(model_name):
-            llm_provider = llm_registry.get_model_by_name(model_name)
+            llm_provider = llm_registry.get_loaded_model(model_name)
             generation.generated_text = str(llm_provider.generate(prompt, **params))
             generation.status = GenerationStatus.SUCCEEDED
         else:
@@ -59,11 +60,11 @@ def get_model_status_task(self, model_name: str):
 
 
 @celery.task(name="app.workers.tasks.load_model", bind=True)
-def load_model_task(self, model_name: str):
+def load_model_task(self, model_name: str, provider_type: LLMProviderType):
     try:
         if llm_registry.is_model_exist(model_name):
             if not llm_registry.is_model_loaded(model_name):
-                llm_registry.load_model_by_name(model_name)
+                llm_registry.load_model_by_name(model_name, provider_type)
                 return {"status": "loaded", "model_name": model_name}
             else:
                 return {"status": "already loaded", "model_name": model_name}

@@ -3,9 +3,13 @@ import gc
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 from abc import ABC, abstractmethod
 from typing import Optional
+from enum import Enum
 
 MODELS_DIR = "models/"
 
+class LLMProviderType(str, Enum):
+    TORCH = "torch"
+    # Future providers can be added here
 
 class LLMProvider(ABC):
     def __init__(self, model_name: str):
@@ -77,7 +81,7 @@ class TorchProvider(LLMProvider):
         try:
             model = getattr(pipe, "model")
             tokenizer = getattr(pipe, "tokenizer")
-            # Перед удалением модели изменяем режим работы на cpu, чтобы освободить видеопамять
+            # Before deleting the model, switch to CPU mode to free up GPU memory
             if model is not None:
                 try:
                     model.cpu()
@@ -100,3 +104,12 @@ class TorchProvider(LLMProvider):
             ):
                 torch.mps.empty_cache()
         return True
+    
+class LLMProviderFactory:
+    @staticmethod
+    def create(model_name, provider_type: LLMProviderType) -> LLMProvider:
+        match provider_type:
+            case LLMProviderType.TORCH:
+                return TorchProvider(model_name)
+            case _:
+                raise ValueError(f"Unsupported provider type: {provider_type}")
