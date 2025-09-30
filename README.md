@@ -52,7 +52,7 @@ Open the API docs: [http://localhost:8000/docs](http://localhost:8000/docs)
 | `GET`  | `/v1/text-generations/{gen_id}` | Get generation status and result |
 | `GET` | `/v1/models` | List all available models |
 | `GET` | `/v1/models/{model_name}` | Get model status |
-| `POST` | `/v1/loaded-models/{model_name}` | Load a model into memory |
+| `POST` | `/v1/loaded-models/{model_name}` | Load a model into memory (requires `provider type` parameter; currently only `torch` is supported) |
 | `DELETE` | `/v1/loaded-models/{model_name}` | Unload a specific model |
 | `DELETE` | `/v1/loaded-models` | Unload all models |
 

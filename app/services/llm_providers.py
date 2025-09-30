@@ -7,9 +7,11 @@ from enum import Enum
 
 MODELS_DIR = "models/"
 
+
 class LLMProviderType(str, Enum):
     TORCH = "torch"
     # Future providers can be added here
+
 
 class LLMProvider(ABC):
     def __init__(self, model_name: str):
@@ -104,7 +106,8 @@ class TorchProvider(LLMProvider):
             ):
                 torch.mps.empty_cache()
         return True
-    
+
+
 class LLMProviderFactory:
     @staticmethod
     def create(model_name, provider_type: LLMProviderType) -> LLMProvider:
