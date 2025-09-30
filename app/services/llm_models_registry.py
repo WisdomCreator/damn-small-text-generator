@@ -1,6 +1,11 @@
 import os
 from typing import Dict, List
-from app.services.llm_providers import MODELS_DIR, LLMProviderType, LLMProvider, LLMProviderFactory
+from app.services.llm_providers import (
+    MODELS_DIR,
+    LLMProviderType,
+    LLMProvider,
+    LLMProviderFactory,
+)
 
 
 class LLMModelsRegistry:
