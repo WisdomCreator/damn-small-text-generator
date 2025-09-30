@@ -20,7 +20,7 @@ class ModelsQuery(BaseModel):
 
 
 class LoadLLMModelRequest(BaseModel):
-    model_name: str
+    provider_type: str
 
 
 class UnloadLLMModelRequest(BaseModel):

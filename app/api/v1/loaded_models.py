@@ -1,5 +1,5 @@
 from fastapi import APIRouter, status
-from app.schemas.llm_model import CreateTaskResponse
+from app.schemas.llm_model import LoadLLMModelRequest, CreateTaskResponse
 from app.workers.tasks import load_model_task, unload_model_task, unload_all_models_task
 
 router = APIRouter(prefix="/loaded-models", tags=["loaded-models"])
@@ -10,8 +10,8 @@ router = APIRouter(prefix="/loaded-models", tags=["loaded-models"])
     response_model=CreateTaskResponse,
     status_code=status.HTTP_202_ACCEPTED,
 )
-async def load_model(model_name: str):
-    task = load_model_task.delay(model_name)
+async def load_model(model_name: str, request: LoadLLMModelRequest):
+    task = load_model_task.delay(model_name, request.provider_type)
     return {"task_id": task.id}
 
 
